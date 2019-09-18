@@ -6,4 +6,4 @@ var con = mysql.createConnection({
     password: '',
     database: 'libra_kpi'
 })
-exports.config =con
+exports.config = con
