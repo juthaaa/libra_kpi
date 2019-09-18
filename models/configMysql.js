@@ -1,3 +1,5 @@
+'user strict';
+
 var mysql = require('mysql');
 
 var con = mysql.createConnection({
@@ -5,5 +7,10 @@ var con = mysql.createConnection({
     user: 'root',
     password: '',
     database: 'libra_kpi'
-})
+});
+
+con.connect(function(err) {
+    if (err) throw err;
+});
+
 exports.config = con

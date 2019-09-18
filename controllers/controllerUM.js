@@ -1,11 +1,13 @@
+const finduser = require('../models/m_user')
+
 module.exports.login = async (req,res) => {
-   
+    
     console.log(req.body)
     let serviceName = 'UM : Login'
     let username = req.body.username || null
     let password = req.body.password || null
     let response = {}
-
+    let results = finduser.findlogin(username,password)
     if(username == null || password == null){
         let error = `${serviceName} , Error: Parametor not found`
         response.message = error
@@ -13,6 +15,8 @@ module.exports.login = async (req,res) => {
     }
 
     try{
+        
+        console.log("Result :",results)
         let result = true
         if(username == 'jutha' && password == '123456')
             result = true
