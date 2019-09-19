@@ -28,6 +28,7 @@ exports.connect = function (sqlString, data) {
                 }
             });
             connection.end();
+            console.log('End Connect');
         });
     });
 }
