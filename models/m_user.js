@@ -1,4 +1,4 @@
-var database = require('../db');
+var database = require('./db');
 
 exports.finduser = async function (username) {
     let sql =  `SELECT *
@@ -42,9 +42,9 @@ exports.insertNewUser = async function(username,password){
     return response;
 }
 
-exports.insertNewMnemonic = async function(username,mnemonic){
-    let sql =  `INSERT INTO mnemonic (us_id, mnemonic) 
-                VALUES ("${username}", "${mnemonic}");`
+exports.insertNewMnemonic = async function(username,ac_address,mnemonic){
+    let sql =  `INSERT INTO mnemonic (us_id,ac_address,mnemonic) 
+                VALUES ("${username}","${ac_address}", "${mnemonic}");`
     let address = await database.connect(sql, null);
     let response = await {
         "status": 200,

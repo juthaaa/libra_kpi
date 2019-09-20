@@ -2,6 +2,11 @@ const finduser = require('../models/m_user')
 var md5 = require('md5');
 const LibraService = require('../service_libra/libra_service')
 
+const Faucent = require('../service_libra/faucet')
+const USE_KULAP_FAUCET = (undefined === process.env.USE_KULAP_FAUCET) ? true : process.env.USE_KULAP_FAUCET === 'true'
+console.log("USE_KULAP_FAUCET :",USE_KULAP_FAUCET)
+const AMOUNT_TO_MINT = process.env.AMOUNT_TO_MINT || 100
+
 module.exports.login = async (req,res) => {
     
     // console.log(req.body)
@@ -18,6 +23,7 @@ module.exports.login = async (req,res) => {
     
     try{
         // console.log("result",results)
+        
         if(results.contents[0]==null){
             response.message = `${serviceName} , Error : username or password invalid`;
             return res.status(500).send(response);
@@ -39,8 +45,10 @@ module.exports.login = async (req,res) => {
                 address: createdResult.address,
                 mnemonic: memMnemonic + ';1'
             }
+            const balance = await libra.queryBalance(wallet.address)
             // console.log('wallet', wallet)
             response.wallet = wallet
+            response.balance = balance
             response.message = `${serviceName} : Successfully !`
             return res.status(200).send(response)
         }
@@ -70,12 +78,20 @@ module.exports.signin = async (req,res) => {
         let memMnemonic = createdResult.mnemonic
         const wallet = {
             address: createdResult.address,
-            mnemonic: memMnemonic + ';1'
+            mnemonic: memMnemonic + ';1',
+            balance: AMOUNT_TO_MINT.toString(10)
         }
         console.log('wallet', wallet)
         response.wallet = wallet
+        const faucent = new Faucent()
+        if (USE_KULAP_FAUCET) {
+            await faucent.getFaucetFromKulap(AMOUNT_TO_MINT, createdResult.address)
+        }else{
+            console.log("Mint to testnet")
+            await faucent.getFaucetFromLibraTestnet(AMOUNT_TO_MINT, createdResult.address)
+        }
         await finduser.insertNewUser(username,md5(password))
-        await finduser.insertNewMnemonic(username,memMnemonic)
+        await finduser.insertNewMnemonic(username,wallet.address,memMnemonic)
     }
     console.log('req body', req.body)
 
