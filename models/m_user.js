@@ -3,8 +3,8 @@ var database = require('./db');
 exports.finduser = async function (username) {
     let sql =  `SELECT *
                 FROM user
-                WHERE fname = "${username}";`
-    // console.log("sql",sql)
+                WHERE email = "${username}";`
+    console.log("sql",sql)
     let address = await database.connect(sql, null);
     let response = await {
         "status": 200,
@@ -30,7 +30,7 @@ exports.getall_User = async function(){
 }
 
 exports.insertNewUser = async function(username,password){
-    let sql =  `INSERT INTO user (fname, passwd) 
+    let sql =  `INSERT INTO user (email, passwd) 
                 VALUES ("${username}", "${password}");`
     let address = await database.connect(sql, null);
     let response = await {
