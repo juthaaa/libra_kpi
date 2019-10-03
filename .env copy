@@ -1,0 +1,12 @@
+PORT=3000
+HOST=localhost
+AMOUNT_TO_MINT=100
+DOCKER_IMAGE=kulap/libra_client:0.2
+USE_KULAP_FAUCET=false
+
+DB_HOST=localhost
+DB_PORT=3306
+DB_USERNAME=root
+DB_NAME=libra_kpi
+
+
