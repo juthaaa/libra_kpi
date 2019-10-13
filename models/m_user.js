@@ -1,10 +1,10 @@
 var database = require('./db');
 
 exports.finduser = async function (username) {
-    let sql =  `SELECT *
+    let sql = `SELECT *
                 FROM user
-                WHERE email = "${username}";`
-    console.log("sql",sql)
+                WHERE us_email = "${username}";`
+    // console.log("sql",sql)
     let address = await database.connect(sql, null);
     let response = await {
         "status": 200,
@@ -15,9 +15,10 @@ exports.finduser = async function (username) {
     return response;
 }
 
-exports.getall_User = async function(){
-    let sql =  `SELECT *
-                FROM user;`
+exports.getall_User = async function () {
+    let sql = `SELECT us_id,us_email,us_fname,us_lname,mnm_address
+                FROM user
+                JOIN mnemonic ON us_id = mnm_us_id;`
     let address = await database.connect(sql, null);
     let response = await {
         "status": 200,
@@ -26,11 +27,11 @@ exports.getall_User = async function(){
         "contents": address
     }
     return response;
-    
+
 }
 
-exports.insertNewUser = async function(username,password){
-    let sql =  `INSERT INTO user (email, passwd) 
+exports.insertNewUser = async function (username, password) {
+    let sql = `INSERT INTO user (us_email, us_password) 
                 VALUES ("${username}", "${password}");`
     let address = await database.connect(sql, null);
     let response = await {
@@ -42,9 +43,9 @@ exports.insertNewUser = async function(username,password){
     return response;
 }
 
-exports.insertNewMnemonic = async function(username,ac_address,mnemonic){
-    let sql =  `INSERT INTO mnemonic (us_id,ac_address,mnemonic) 
-                VALUES ("${username}","${ac_address}", "${mnemonic}");`
+exports.insertNewMnemonic = async function (id, ac_address, mnemonic) {
+    let sql = `INSERT INTO mnemonic (mnm_us_id,mnm_address,mnm_mnemonic) 
+                VALUES ("${id}","${ac_address}", "${mnemonic}");`
     let address = await database.connect(sql, null);
     let response = await {
         "status": 200,
@@ -52,13 +53,14 @@ exports.insertNewMnemonic = async function(username,ac_address,mnemonic){
         "messages": "Completed",
         "contents": address
     }
-    return response;    
+    return response;
 }
 
 exports.findmnemonic = async function (username) {
-    let sql =  `SELECT *
+    let sql = `SELECT *
                 FROM mnemonic
-                WHERE us_id = "${username}";`
+                LEFT JOIN user ON us_id=mnm_us_id 
+                WHERE us_email = "${username}";`
     //  console.log("sql",sql)
     let address = await database.connect(sql, null);
     let response = await {
@@ -70,3 +72,17 @@ exports.findmnemonic = async function (username) {
     return response;
 }
 
+exports.getDashboard = async function (mnm_address) {
+    let sql = ` SELECT us_email,us_fname,us_lname FROM user LEFT 
+                JOIN mnemonic ON us_id = mnm_us_id 
+                WHERE mnm_address = "${mnm_address}" `
+    // console.log("sql",sql)
+    let address = await database.connect(sql, null);
+    let response = await {
+        "status": 200,
+        "status_code": 200,
+        "messages": "Completed",
+        "contents": address
+    }
+    return response;
+}

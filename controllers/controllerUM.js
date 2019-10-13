@@ -14,53 +14,51 @@ module.exports.login = async (req, res) => {
     let serviceName = 'UM : Login'
     let username = req.body.username || null
     let password = req.body.password || null
-    console.log("req.body :",username,md5(password))
+
+    console.log("req.body :", username, md5(password))
     let response = {}
     if (username == null || password == null) {
-        let error = `${serviceName} , Error: Parametor not found`
-        response.message = error
+        response.message = `${serviceName} , Error: Parametor not found`
+        response.status_text = "error"
         return res.status(200).send(response)
     }
     let results = await finduser.finduser(username)
+    if (results.contents[0] == undefined) {
+        response.message = `${serviceName} , Error : username or password invalid`;
+        response.status_text = "error";
+        return res.status(200).send(response);
+    }
 
     try {
-        console.log("result",results.contents[0])
+        console.log("result", results.contents[0])
 
-        if (results.contents[0] == null) {
+        if (!(username == results.contents[0].us_email && md5(password) == results.contents[0].us_password)) {
             response.message = `${serviceName} , Error : username or password invalid`;
+            response.status_text = "error";
             return res.status(200).send(response);
         } else {
-            var result = (username == results.contents[0].email && md5(password) == results.contents[0].passwd)
+            var result = (username == results.contents[0].us_email && md5(password) == results.contents[0].us_password)
         }
         // console.log(md5(password))
         if (result) {
             let result_mnemonic = await finduser.findmnemonic(username)
             let mnemonics = {}
-            mnemonics.mnemonic = result_mnemonic.contents[0].mnemonic
+            mnemonics.mnemonic = result_mnemonic.contents[0].mnm_mnemonic
 
             console.log("test_mnemonics", mnemonics);
 
             const libra = new LibraService()
             const createdResult = await libra.createWallet(mnemonics)
-            let memMnemonic = createdResult.mnemonic
+            // let memMnemonic = createdResult.mnemonic
             const wallet = {
                 address: createdResult.address,
-                mnemonic: memMnemonic + ';1'
+                mnemonic: createdResult.mnemonic
             }
-            // const balance = await libra.queryBalance(wallet.address)
-            // console.log('wallet', wallet)
+            response.address = wallet.address
             response.mnemonic = wallet.mnemonic
-            // response.balance = balance
-            // response.message = `${serviceName} : Successfully !`
-            // console.log("path of query balance :",'https://api-test.libexplorer.com/api?module=account&action=balance&address=' + wallet.address)
-            
-            //get balance form api testnet
-            await axios.get('https://api-test.libexplorer.com/api?module=account&action=balance&address=' + wallet.address)
-                .then(res => {
-                    // console.log("test :", res.data)
-                    response.balance = res.data.result/1000000 //convert micorlibra => libra
-                })
-            response.status = "success"
+
+
+            response.status_text = "success"
             return res.status(200).send(response)
         }
         response.message = `${serviceName} , Error : username or password invalid`;
@@ -102,8 +100,10 @@ module.exports.signin = async (req, res) => {
             console.log("Mint to testnet")
             await faucent.getFaucetFromLibraTestnet(AMOUNT_TO_MINT, createdResult.address)
         }
-        await finduser.insertNewUser(username, md5(password))
-        await finduser.insertNewMnemonic(username, wallet.address, memMnemonic)
+        let insert_user = await finduser.insertNewUser(username, md5(password))
+        // console.log(insert_user.contents.insertId)
+        let id_newmnemonic = insert_user.contents.insertId
+        await finduser.insertNewMnemonic(id_newmnemonic, wallet.address, memMnemonic)
 
     }
     // console.log('https://api-test.libexplorer.com/api?module=account&action=balance&address=' + response.wallet.address)
@@ -122,3 +122,25 @@ module.exports.getUserAll = async (req, res) => {
     response.result = results
     return res.status(200).send(response)
 }
+
+module.exports.getforDashboard = async (req, res) => {
+    let serviceName = `UM : getforDashboard`
+    let address = req.body.address || null
+    let response = {}
+    console.log(serviceName)
+
+    let result_db = await finduser.getDashboard(address)
+    // console.log("reslt_db :",result_db)
+    response.userdata = result_db.contents[0]
+
+    // console.log("path of query balance :", 'https://api-test.libexplorer.com/api?module=account&action=balance&address=' + address)
+    // get balance form api testnet
+    
+
+    let reslt_userall = await finduser.getall_User()
+    // console.log("reslt_userall :",reslt_userall)
+    response.datauserall = reslt_userall.contents
+    
+    return res.status(200).send(response)
+}
+
