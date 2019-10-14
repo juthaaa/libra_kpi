@@ -1,8 +1,10 @@
 var database = require('./db');
 
-exports.finduser = async function (username) {
-    let sql = `SELECT *
+/* for function : login , singin */
+exports.finduser_for_login = async function (username) {
+    let sql = `SELECT us_email,us_password,mnm_mnemonic,mnm_address
                 FROM user
+                LEFT JOIN mnemonic ON us_id=mnm_us_id
                 WHERE us_email = "${username}";`
     // console.log("sql",sql)
     let address = await database.connect(sql, null);
@@ -15,7 +17,8 @@ exports.finduser = async function (username) {
     return response;
 }
 
-exports.getall_User = async function () {
+/* for function : getforUserModal */
+exports.get_for_userSelect = async function () {
     let sql = `SELECT us_id,us_email,us_fname,us_lname,mnm_address
                 FROM user
                 JOIN mnemonic ON us_id = mnm_us_id;`
@@ -30,9 +33,9 @@ exports.getall_User = async function () {
 
 }
 
-exports.insertNewUser = async function (username, password) {
-    let sql = `INSERT INTO user (us_email, us_password) 
-                VALUES ("${username}", "${password}");`
+exports.insertNewUser = async function (email, password, fname, lname) {
+    let sql = `INSERT INTO user (us_email, us_password, us_fname, us_lname) 
+                VALUES ("${email}", "${password}", "${fname}", "${lname}");`
     let address = await database.connect(sql, null);
     let response = await {
         "status": 200,
@@ -56,8 +59,9 @@ exports.insertNewMnemonic = async function (id, ac_address, mnemonic) {
     return response;
 }
 
+/* for function : transfer */
 exports.findmnemonic = async function (username) {
-    let sql = `SELECT *
+    let sql = `SELECT mnm_address,mnm_mnemonic
                 FROM mnemonic
                 LEFT JOIN user ON us_id=mnm_us_id 
                 WHERE us_email = "${username}";`
@@ -72,9 +76,10 @@ exports.findmnemonic = async function (username) {
     return response;
 }
 
-exports.getDashboard = async function (mnm_address) {
-    let sql = ` SELECT us_email,us_fname,us_lname FROM user LEFT 
-                JOIN mnemonic ON us_id = mnm_us_id 
+/* for function : getfortableBalance */
+exports.get_user_by_mnmemoic = async function (mnm_address) {
+    let sql = ` SELECT us_email,us_fname,us_lname FROM user 
+                LEFT JOIN mnemonic ON us_id = mnm_us_id 
                 WHERE mnm_address = "${mnm_address}" `
     // console.log("sql",sql)
     let address = await database.connect(sql, null);
@@ -86,3 +91,4 @@ exports.getDashboard = async function (mnm_address) {
     }
     return response;
 }
+
