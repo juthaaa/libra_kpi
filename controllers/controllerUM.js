@@ -125,6 +125,7 @@ module.exports.getfor_user_modal = async (req, res) => {
 
     for(let index in datas){
         let tmp = {}
+        tmp.us_id = datas[index].us_id
         tmp.email = datas[index].us_email
         tmp.name = datas[index].us_fname+"  "+datas[index].us_lname
         tmp.address = datas[index].mnm_address
@@ -166,12 +167,12 @@ module.exports.getfor_table_balance = async (req, res) => {
 
 module.exports.get_user_account = async (req,res) => {
     let serviceName = `UM : get_account`
-    let address = req.body.address || null
-    console.log(address)
+    let mnemonic = req.body.mnemonic || null
+    console.log(mnemonic)
     let response = {}
     console.log(serviceName)
 
-    let result_account = await finduser.get_user_by_mnmemoic(address)
+    let result_account = await finduser.get_user_by_mnemonic(mnemonic)
 
     response.data = result_account.contents
     return res.status(200).send(response)

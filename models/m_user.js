@@ -77,12 +77,36 @@ exports.findmnemonic = async function (username) {
 }
 
 /* for function : getfortableBalance */
-exports.get_user_by_mnmemoic = async function (mnm_address) {
-    let sql = ` SELECT us_email,us_fname,us_lname FROM user 
+exports.get_user_by_mnemonic = async function (mnm_mnemonic) {
+    let sql = ` SELECT us_id,us_email,us_fname,us_lname FROM user 
                 LEFT JOIN mnemonic ON us_id = mnm_us_id 
-                WHERE mnm_address = "${mnm_address}" `
+                WHERE mnm_mnemonic = "${mnm_mnemonic}" `
     // console.log("sql",sql)
     let address = await database.connect(sql, null);
+    let response = await {
+        "status": 200,
+        "status_code": 200,
+        "messages": "Completed",
+        "contents": address
+    }
+    return response;
+}
+
+exports.get_all = async function(){
+    let sql = `SELECT * FROM user`
+    let address =  await database.connect(sql, null);
+    let response = await {
+        "status": 200,
+        "status_code": 200,
+        "messages": "Completed",
+        "contents": address
+    }
+    return response;
+}
+
+exports.get_count_userall = async function(){
+    let sql = `SELECT COUNT(*) AS count_member FROM user`
+    let address =  await database.connect(sql, null);
     let response = await {
         "status": 200,
         "status_code": 200,

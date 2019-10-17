@@ -7,4 +7,5 @@ router.post(`/signup`, controller.signup);
 router.get(`/getforUserModal`, controller.getfor_user_modal);
 router.post(`/getforTableBalance`, controller.getfor_table_balance);
 router.post(`/getuserbymnemonic`, controller.get_user_account);
+
 module.exports = router;
