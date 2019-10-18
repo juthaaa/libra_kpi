@@ -136,9 +136,11 @@ module.exports.update_petiton_status = async (req,res)=>{
     let accept_total = result_data_petition.contents[0].Accept
     let reject_total = result_data_petition.contents[0].Reject
     console.log(accept_total+reject_total+">="+parseInt(user_total/2+1))
+    console.log("(accept_total+reject_total)>=parseInt(user_total/2+1)",(accept_total+reject_total)>=parseInt(user_total/2+1))
     if((accept_total+reject_total)>=parseInt(user_total/2+1)){
         let getdate = new Date
         let date = getdate.getFullYear() + "-" + (getdate.getMonth() + 1) + "-" + getdate.getDate() + " " + getdate.getHours() + ":" + getdate.getMinutes() + ":" + getdate.getSeconds()
+        console.log(accept_total,reject_total+">"+parseInt(user_total/2+1))
         if((accept_total)>=parseInt(user_total/2+1)){
             response.message = "success"
             let result_update_pettion = await con_m_petition.update_petition_status(1,date,pt_id)
@@ -146,6 +148,10 @@ module.exports.update_petiton_status = async (req,res)=>{
         }else if((reject_total)>=parseInt(user_total/2+1)){
             response.message = "reject"
             let result_update_pettion = await con_m_petition.update_petition_status(2,date,pt_id)
+            response.result_update_pettion = result_update_pettion
+        }else if(reject_total==accept_total){
+            response.message = "no result"
+            let result_update_pettion = await con_m_petition.update_petition_status(3,date,pt_id)
             response.result_update_pettion = result_update_pettion
         }
     }
