@@ -12,14 +12,14 @@ class Faucet {
     return response
   }
 
-  async getFaucetFromKulap(amount, address) {
-    const payload = { amount: amount, address: address }
-    const url = `https://libraservice3.kulap.io/mint`
-    console.log(`calling faucet ${url}`)
+  // async getFaucetFromKulap(amount, address) {
+  //   const payload = { amount: amount, address: address }
+  //   const url = `https://libraservice3.kulap.io/mint`
+  //   console.log(`calling faucet ${url}`)
 
-    const response = await axios.post(url, payload)
-    return response
-  }
+  //   const response = await axios.post(url, payload)
+  //   return response
+  // }
 }
 
 module.exports = Faucet
